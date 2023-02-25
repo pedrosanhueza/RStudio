@@ -1,0 +1,154 @@
+---
+title: "Simple Linear Regression"
+output: 
+  html_document:
+    theme: cerulean
+    code_folding: hide
+---
+
+```{r, message=FALSE, warning=FALSE}
+# Load libraries
+library(tidyverse)
+library(pander)
+library(ggplot2)
+library(dplyr)
+
+
+# Read in the dataset
+billionaires <- read.csv("Billionaires.csv", header=TRUE)
+```
+
+<!-- Directions
+
+Come up with a simple linear regression of your own creation. 
+
+* Write the Background and clearly state your question. Then collect data and perform the linear regression analysis in order to answer your question. Use the proper order of first, ask the question, then second, figure out the answer.
+
+* You should collect both the quantitative response variable and the quantitative explanatory variable yourself. This can be data you collect from 
+    - the internet (like weather data, Facebook data, or sports data) 
+    - your own experiment 
+    - your own observational study
+* However,     
+    - The data should not be a single pre-existing dataset. It must be something that you piece together yourself.
+
+* You need at least $n=3$ $(X,Y)$ pairs to perform the regression. However, your regression will only be useful if you can get around $n=10$ or more observations.
+
+-->
+
+<br>
+
+<center>
+
+![](https://claytonpl.org/wp-content/uploads/2014/08/money-banner.jpg)
+
+</center>
+
+<br>
+
+## Introduction
+
+Well now, the data collected is about famous rich people. It tells us how much dough they're packin' in their pockets, also known as their net worth. And let's not forget age, cause that plays a role too. The older you are, the more time you got to accumulate that fortune, so it's likely the older fellers got more coin than the younger bucks.
+
+$$
+Net Worth = β0 + β1 * Age + ε
+$$
+
+## Hypothesis
+
+I hypothesize that there is a relationship between age and net worth among rich people on the data collected.
+
+Is there a relationship between age and net worth among billionaires?
+
+
+$$
+H_0: \beta_1 = 0 \\
+H_a: \beta_1 \neq 0\\
+\alpha = 0.05
+$$
+
+$$
+  H_0: \text{Age is not a predictor of net worth among billionaires}
+$$ 
+
+$$
+  H_a: \text{Age is a significant predictor of net worth among billionaires}
+$$
+
+To answer this question, we can use a simple linear regression model to determine whether there is a linear relationship between age and net worth in this dataset. The model can be expressed as:
+
+$$
+  \underbrace{Y_i}_\text{Net Worth} = \beta_0 + \beta_1 \underbrace{X_i}_\text{Age} + \epsilon_i \quad \text{where} \ \epsilon_i \sim N(0, \sigma^2) 
+$$
+
+## Analysis
+
+Well now, let's get to the heart of this analysis. We'll start by examining the **connection between age and net worth** by plotting them together on a **scatter plot**. This way, we can see how these variables interact visually and spot any peculiarities or oddities.
+
+<div style="display:block;margin-left:auto;margin-right:auto;width: 80%;">
+
+```{r message=FALSE, warning=FALSE}
+
+# Read the data into R
+billionaires <- read.csv("billionaires.csv")
+
+# Fit a linear regression model to the data
+billionaires_regression <- lm(NetWorth ~ Age, data = billionaires)
+
+# Calculate the z-score for net worth
+billionaires$z_score <- abs(scale(billionaires$NetWorth))
+
+# Filter out the outliers
+billionaires_filtered <- filter(billionaires, z_score <= 3)
+
+# Create a scatterplot with outliers removed and linear regression line
+ggplot(billionaires_filtered, aes(x = Age, y = NetWorth)) +
+  geom_point(aes(color = "Inliers"), size = 1.5, alpha = 0.7) +
+  geom_smooth(method = "lm", se = FALSE, color = "#F41711", size = 1) +
+  annotate("text", x = 50, y = 80, label = "Linear Regression Line",
+           size = 4, fontface = "bold", color = "#F41711") +
+  theme_classic() +
+  labs(x = "Age (years)", y = "Net Worth (billion USD)", color = ' ') +
+  ggtitle("Relationship between Age and Net Worth among Billionaires") +
+  scale_y_continuous(labels = scales::dollar_format(scale = 1e-9, suffix = "B")) +
+  scale_color_manual(values=c("#008080")) +
+  theme(plot.title = element_text(size = 14, hjust = 0.5),
+        plot.subtitle = element_text(size = 12, hjust = 0.5, color = "grey40"),
+        axis.title = element_text(size = 12),
+        axis.text = element_text(size = 10),
+        legend.title = element_blank(),
+        legend.text = element_text(size = 10)) +
+  labs(subtitle = "Outliers removed (|z-score| > 3)")
+
+```
+
+</div>
+
+Well, let me tell you about that fancy code summary(billionaires_regression) - it gives a summary of a linear regression model. It's got all kinds of info on the coefficients, t-statistics, R-squared value, and more. It's a powerful tool for evaluating the fit and significance of a linear regression model:
+
+```{r message=FALSE, warning=FALSE}
+pander(summary(billionaires_regression))
+```
+
+## Conclusion
+
+The summary output of the linear regression model reveals some interesting findings regarding the relationship between age and net worth among billionaires. 
+
+The coefficients section indicates that age is a statistically significant predictor of net worth, as indicated by the p-value of 0.04758, which is less than 0.05, indicating that age is a significant predictor of net worth among billionaires.
+
+* The multiple R-squared value of 0.00161 suggests that only a tiny fraction of the variance in net worth can be explained by age alone. 
+
+* The residual standard error of 1.065e+10 indicates that there is a significant amount of unexplained variance in the model. 
+
+* The adjusted R-squared value of 0.0012 further indicates that the addition of age as a predictor does not provide much explanatory power.
+
+Overall, while the analysis suggests that age may have a statistically significant effect on net worth among billionaires, the magnitude of this effect is small and the amount of variance explained is very low. Therefore, we cannot confidently reject the null hypothesis that age is not a significant predictor of net worth among billionaires.
+
+<br><br><br>
+
+#### Disclaimer
+
+ <font size="3">
+ I collected this data myself from the internet. This data is not a single pre-existing dataset. Something I piece together from a public website.
+ </font> 
+
+<br><br><br><br><br><br><br><br><br>

@@ -12,7 +12,7 @@ output:
 
 ```{r message=FALSE, warning=FALSE}
 library(tidyverse)
-library(car)
+# library(car)
 library(ggpubr)
 library(pander)
 library(DT)
