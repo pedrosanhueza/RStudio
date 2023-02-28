@@ -1,5 +1,5 @@
 ---
-title: "Food at College – Kruskal-Wallis"
+title: "Kruskal-Wallis Approach"
 output: 
   html_document:
     theme: cerulean
@@ -7,9 +7,6 @@ output:
 ---
 
 ```{r, warning=FALSE, message=FALSE}
-# From your file menu (at the top of R-Studio) select:
-# "Session -> Set working directory -> To source file location"
-# Then play this chunk to get the data into R.
 library(mosaic) # for the favstats
 library(car)
 library(DT)
