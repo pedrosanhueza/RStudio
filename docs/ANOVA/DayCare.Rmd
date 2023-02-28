@@ -9,7 +9,7 @@ output:
 
 ```{r, warning=FALSE, message=FALSE}
 library(mosaic)
-library(DT)
+# library(DT)
 library(pander)
 library(car)
 library(tidyverse)
@@ -21,7 +21,7 @@ library(tidyverse)
 # the top right corner of this gray R-Chunk. 
 
 ## Wide data from original article:
-late <- read.csv("../../Data/late.csv", header=TRUE) 
+late <- read.csv("late.csv", header=TRUE) 
 
 ## Change to "long" data for use in R:
 Late <- pivot_longer(late, #Start with wide data set late

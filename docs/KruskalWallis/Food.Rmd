@@ -15,7 +15,7 @@ library(car)
 library(DT)
 library(pander)
 library(readr)
-food <- read_csv("../../Data/food.csv") #food.csv is in the Data folder...
+food <- read_csv("food.csv") #food.csv is in the Data folder...
 ```
 
 
