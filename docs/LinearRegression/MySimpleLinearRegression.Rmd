@@ -1,6 +1,5 @@
 ---
 title: "Simple Linear Regression"
-title: "Kruskal-Wallis Test"
 output:
   html_document:
     theme: cerulean
@@ -23,8 +22,20 @@ library(pander)
 library(ggplot2)
 library(dplyr)
 
-# Read in the dataset
+# Read the data into R
 billionaires <- read.csv("Billionaires.csv", header=TRUE)
+
+# Filter out NA values in the "Children" and "NetWorth" columns
+billionaires <- billionaires %>%
+  drop_na(Age, Real.Time.Net.Worth) %>%
+  rename(NetWorth = Real.Time.Net.Worth)
+
+# Convert Net Worth column to numeric
+billionaires$NetWorth <- ifelse(grepl("B", billionaires$NetWorth),
+                                as.numeric(gsub("\\$|B", "", billionaires$NetWorth)) * 1e9,
+                                as.numeric(gsub("\\$|M", "", billionaires$NetWorth)) * 1e6)
+
+
 ```
 
 <!-- Directions
@@ -48,7 +59,7 @@ Come up with a simple linear regression of your own creation.
 
 <center>
 
-![](https://claytonpl.org/wp-content/uploads/2014/08/money-banner.jpg)
+![](billionaires-graphic.png)
 
 </center>
 
@@ -56,24 +67,13 @@ Come up with a simple linear regression of your own creation.
 
 ## Introduction
 
-Well now, the data collected is about famous rich people. It tells us how much dough they're packin' in their pockets, also known as their net worth. And let's not forget age, cause that plays a role too. The older you are, the more time you got to accumulate that fortune, so it's likely the older fellers got more coin than the younger bucks.
-
-$$
-Net Worth = β0 + β1 * Age + ε
-$$
+In this case study, I will be examining the relationship between age and net worth in a dataset of billionaires. The analysis involves fitting a simple linear regression model to the data and examining the resulting statistical measures. The insights gained from the analysis can inform our understanding of how age impacts net worth in this particular population.
 
 ## Hypothesis
 
-I hypothesize that there is a relationship between age and net worth among rich people on the data collected.
+I think that there may be a connection between **age** and **net worth** of billionaires, indicating that the older they are, the higher their net worth.
 
-Is there a relationship between age and net worth among billionaires?
-
-
-$$
-H_0: \beta_1 = 0 \\
-H_a: \beta_1 \neq 0\\
-\alpha = 0.05
-$$
+To explore this, I'll create a linear regression model with net worth as the dependent variable and age as the independent variable.
 
 $$
   H_0: \text{Age is not a predictor of net worth among billionaires}
@@ -83,7 +83,7 @@ $$
   H_a: \text{Age is a significant predictor of net worth among billionaires}
 $$
 
-To answer this question, we can use a simple linear regression model to determine whether there is a linear relationship between age and net worth in this dataset. The model can be expressed as:
+I will use a simple linear regression model to determine the linear relationship between age and net worth. The formula for the model is:
 
 $$
   \underbrace{Y_i}_\text{Net Worth} = \beta_0 + \beta_1 \underbrace{X_i}_\text{Age} + \epsilon_i \quad \text{where} \ \epsilon_i \sim N(0, \sigma^2) 
@@ -91,15 +91,11 @@ $$
 
 ## Analysis
 
-Well now, let's get to the heart of this analysis. We'll start by examining the **connection between age and net worth** by plotting them together on a **scatter plot**. This way, we can see how these variables interact visually and spot any peculiarities or oddities.
+I'll start by visualizing the **connection between age and net worth** on a scatter plot. This way, I can see how these variables interact visually and spot any peculiarities or oddities.
 
 <div style="display:block;margin-left:auto;margin-right:auto;width: 80%;">
 
 ```{r message=FALSE, warning=FALSE}
-
-# Read the data into R
-billionaires <- read.csv("billionaires.csv")
-
 # Fit a linear regression model to the data
 billionaires_regression <- lm(NetWorth ~ Age, data = billionaires)
 
@@ -112,9 +108,9 @@ billionaires_filtered <- filter(billionaires, z_score <= 3)
 # Create a scatterplot with outliers removed and linear regression line
 ggplot(billionaires_filtered, aes(x = Age, y = NetWorth)) +
   geom_point(aes(color = "Inliers"), size = 1.5, alpha = 0.7) +
-  geom_smooth(method = "lm", se = FALSE, color = "#F41711", size = 1) +
+  geom_smooth(method = "lm", se = FALSE, color = "#003333", size = 1) +
   annotate("text", x = 50, y = 80, label = "Linear Regression Line",
-           size = 4, fontface = "bold", color = "#F41711") +
+           size = 4, fontface = "bold", color = "#003333") +
   theme_classic() +
   labs(x = "Age (years)", y = "Net Worth (billion USD)", color = ' ') +
   ggtitle("Relationship between Age and Net Worth among Billionaires") +
@@ -132,7 +128,7 @@ ggplot(billionaires_filtered, aes(x = Age, y = NetWorth)) +
 
 </div>
 
-Well, let me tell you about that fancy code summary(billionaires_regression) - it gives a summary of a linear regression model. It's got all kinds of info on the coefficients, t-statistics, R-squared value, and more. It's a powerful tool for evaluating the fit and significance of a linear regression model:
+Since the scatter plot has many data points, it can be confusing to draw conclusions from. To better understand the strength and significance of the relationship, I will compute the p-value and R-squared.
 
 ```{r message=FALSE, warning=FALSE}
 pander(summary(billionaires_regression))
@@ -140,24 +136,18 @@ pander(summary(billionaires_regression))
 
 ## Conclusion
 
-The summary output of the linear regression model reveals some interesting findings regarding the relationship between age and net worth among billionaires. 
+These statistical measures show computations on how well the model fits the data and how strong the relationship is. After analyzing them, this are some of the insights I conclude:
 
-The coefficients section indicates that age is a statistically significant predictor of net worth, as indicated by the p-value of 0.04758, which is less than 0.05, indicating that age is a significant predictor of net worth among billionaires.
-
-* The multiple R-squared value of 0.00161 suggests that only a tiny fraction of the variance in net worth can be explained by age alone. 
-
-* The residual standard error of 1.065e+10 indicates that there is a significant amount of unexplained variance in the model. 
-
-* The adjusted R-squared value of 0.0012 further indicates that the addition of age as a predictor does not provide much explanatory power.
-
-Overall, while the analysis suggests that age may have a statistically significant effect on net worth among billionaires, the magnitude of this effect is small and the amount of variance explained is very low. Therefore, we cannot confidently reject the null hypothesis that age is not a significant predictor of net worth among billionaires.
+* The intercept of the linear regression model is estimated to be 2.808 billion USD.
+* The coefficient for the Age variable is estimated to be 31.95 million USD per year of age.
+* The t-value for the Age variable is 1.992, which is statistically significant at the 5% level.
+* **The p-value for the Age variable is 0.0465, which is below the 0.05 threshold and indicates that there is evidence to suggest that age is a significant predictor of net worth.**
+* The residual standard error is 1.065 billion USD, which measures the variability of the data around the fitted line.
+* The R-squared value is 0.001626, indicating that only a very small proportion of the variability in net worth is explained by age.
+* The adjusted R-squared value is 0.001216, which takes into account the number of variables in the model and penalizes the R-squared value for including irrelevant variables.
 
 <br><br><br>
 
-#### Disclaimer
 
- <font size="3">
- I collected this data myself from the internet. This data is not a single pre-existing dataset. Something I piece together from a public website.
- </font> 
 
 <br><br><br><br><br><br><br><br><br>
